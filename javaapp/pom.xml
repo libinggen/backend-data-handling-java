@@ -8,15 +8,20 @@
   <artifactId>javaapp</artifactId>
   <version>0.1</version>
 
-  <name>javaapp</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
-
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
 
+  <name>javaapp</name>
+  <url>https://github.com/libinggen/backend-data-handling-java/blob/974a9f3e18e3ad4c87c7db1de501068bd307b431/README.md</url>
+
+  <description>
+    This is a Java-based web application designed for task management. 
+    It features a user-friendly interface and supports various task operations 
+    like creation, modification, deletion, and categorization.
+  </description>
+  
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
