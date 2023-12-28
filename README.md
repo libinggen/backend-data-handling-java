@@ -11,5 +11,11 @@ docker compose up -d java_db
 
 docker compose logs 
 
+https://mvnrepository.com
+
+
+mvn clean install -U
+mvn clean package
+
 
 ```
