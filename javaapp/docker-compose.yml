@@ -8,21 +8,22 @@ services:
     ports:
       - 8080:8080
     environment:
-      - DATABASE_URL=jdbc:postgresql://java_db:5432/postgres
+      - DATABASE_URL=jdbc:postgresql://java_db:5432/postgres-java
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
     depends_on:
       - java_db
 
+  #old service (postgres)
   java_db:
     container_name: java_db
-    image: postgres:14
+    image: postgres:12
     ports:
       - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_DB: postgres-java
     volumes:
       - pgdata:/var/lib/postgresql/data
 

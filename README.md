@@ -36,4 +36,9 @@ docker exec -it javaapp /bin/bash
 
 mvn clean package -DskipTests
 docker compose up --build
+
+
+mvn clean package -DskipTests
+
+
 ```
