@@ -3,6 +3,8 @@ package com.libinggen.javadocker.javaapp.user;
 import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import org.hibernate.validator.constraints.*;
 
 @Entity
 @Table(name = "users")
@@ -17,16 +19,19 @@ public class User {
     @Column(name = "uuid", updatable = false, nullable = false)
     private UUID uuid;
 
-    @Column(name = "userName")
+    @Column(name = "username", unique = true, length = 255)
     private String userName;
 
-    @Column(name = "email")
+    @Email(message = "Enter a valid email address.")
+    @Column(name = "email", unique = true, length = 250)
     private String email;
 
-    @Column(name = "password")
+    @Length(max = 128)
+    @Column(name = "password", length = 128)
     private String password;
 
-    @Column(name = "password2")
+    @Length(max = 128)
+    @Column(name = "password2", length = 128)
     private String password2;
 
     // getters and setters
