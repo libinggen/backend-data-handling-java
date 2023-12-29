@@ -27,4 +27,8 @@ docker compose up --build
 docker compose up java_app
 
 docker exec -it java_app /bin/bash
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres-java
+
+
 ```
