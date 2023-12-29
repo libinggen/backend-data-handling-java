@@ -13,8 +13,8 @@ public class User {
   @Column(name = "uuid")
   private String uuid;
 
-  @Column(name = "username")
-  private String username;
+  @Column(name = "userName")
+  private String userName;
 
   @Column(name = "email")
   private String email;
@@ -35,20 +35,20 @@ public class User {
     this.id = id;
   }
 
-  public String getUUId() {
+  public String getUuid() {
     return uuid;
   }
 
-  public void setUUId(String uuid) {
+  public void setUuid(String uuid) {
     this.uuid = uuid;
   }
 
   public String getUserName() {
-    return username;
+    return userName;
   }
 
-  public void setUserName(String username) {
-    this.username = username;
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 
   public String getEmail() {
