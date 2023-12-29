@@ -17,7 +17,7 @@ services:
   #old service (postgres)
   java_db:
     container_name: java_db
-    image: postgres:12
+    image: postgres:14
     ports:
       - 5432:5432
     environment:
