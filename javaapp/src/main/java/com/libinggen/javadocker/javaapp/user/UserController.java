@@ -35,10 +35,14 @@ public class UserController {
   }
 
   @PostMapping
-  public User createUser(@RequestBody User user) {
+  public ResponseEntity<?> createUser(@RequestBody User user) {
     String hashedPassword = userService.hashPassword(user.getPassword());
     user.setPassword(hashedPassword);
-    return userRepository.save(user);
+    User createUser = userRepository.save(user);
+    UserDTO userDTO =
+        new UserDTO(createUser.getUuid(), createUser.getUserName(), createUser.getEmail());
+
+    return ResponseEntity.ok(Map.of("user", userDTO));
   }
 
   @PutMapping("/{id}")
