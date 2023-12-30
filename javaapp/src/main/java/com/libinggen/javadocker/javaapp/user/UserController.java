@@ -63,22 +63,33 @@ public class UserController {
     return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
-  @PutMapping("/{id}")
-  public User updateUser(@PathVariable Long id, @RequestBody User user) {
-    User existingUser = userRepository.findById(id).get();
+  @PutMapping("/{uuid}")
+  public ResponseEntity<?> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
+    Optional<User> userOptional = userRepository.findByUuid(uuid);
+
+    if (!userOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    User existingUser = userOptional.get();
     existingUser.setUserName(user.getUserName());
     existingUser.setEmail(user.getEmail());
-    return userRepository.save(existingUser);
+    String hashedPassword = userService.hashPassword(user.getPassword());
+    existingUser.setPassword(hashedPassword);
+    UserDTO userDTO =
+        new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
+
+    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
-  @DeleteMapping("/{id}")
-  public String deleteUser(@PathVariable Long id) {
+  @DeleteMapping("/{uuid}")
+  public ResponseEntity<?> deleteUser(@PathVariable UUID uuid) {
     try {
-      userRepository.findById(id).get();
-      userRepository.deleteById(id);
-      return "User deleted successfully";
+      userRepository.findByUuid(uuid).get();
+      userRepository.deleteByUuid(uuid);
+      return ResponseEntity.ok(Map.of("delete", "User deleted successfully"));
     } catch (Exception e) {
-      return "User not found";
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
   }
 
