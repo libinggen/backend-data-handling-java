@@ -3,6 +3,7 @@ package com.libinggen.javadocker.javaapp.user;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,19 @@ public class UserController {
     return userRepository.findAll();
   }
 
-  @GetMapping("/{id}")
-  public User getUserById(@PathVariable Long id) {
-    return userRepository.findById(id).get();
+  @GetMapping("/{uuid}")
+  public ResponseEntity<?> getUserByUuid(@PathVariable UUID uuid) {
+    Optional<User> userOptional = userRepository.findByUuid(uuid);
+
+    if (!userOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    User existingUser = userOptional.get();
+    UserDTO userDTO =
+        new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
+
+    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
   @PostMapping
@@ -42,7 +53,7 @@ public class UserController {
     UserDTO userDTO =
         new UserDTO(createUser.getUuid(), createUser.getUserName(), createUser.getEmail());
 
-    return ResponseEntity.ok(Map.of("user", userDTO));
+    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
   @PutMapping("/{id}")
@@ -87,6 +98,6 @@ public class UserController {
     UserDTO userDTO =
         new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
 
-    return ResponseEntity.ok(Map.of("user", userDTO));
+    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 }
