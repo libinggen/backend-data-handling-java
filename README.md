@@ -39,4 +39,6 @@ WHERE table_name = 'users';
 ALTER TABLE users
 ALTER COLUMN uuid TYPE uuid USING (uuid::uuid);
 
+ALTER TABLE users DROP COLUMN user_name;
+
 ```
