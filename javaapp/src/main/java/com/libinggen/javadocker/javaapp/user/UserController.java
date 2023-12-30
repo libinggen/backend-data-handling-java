@@ -1,8 +1,11 @@
 package com.libinggen.javadocker.javaapp.user;
 
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,11 +21,13 @@ public class UserController {
 
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private UserService userService;
 
   @GetMapping
   public List<User> getAllUsers() {
     return userRepository.findAll();
-  } 
+  }
 
   @GetMapping("/{id}")
   public User getUserById(@PathVariable Long id) {
@@ -31,6 +36,8 @@ public class UserController {
 
   @PostMapping
   public User createUser(@RequestBody User user) {
+    String hashedPassword = userService.hashPassword(user.getPassword());
+    user.setPassword(hashedPassword);
     return userRepository.save(user);
   }
 
@@ -51,5 +58,27 @@ public class UserController {
     } catch (Exception e) {
       return "User not found";
     }
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> loginUser(@RequestBody User user) {
+    User existingUser = userRepository.findById(user.getId()).get();
+
+    if (existingUser == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    boolean isPasswordCorrect =
+        userService.checkPassword(user.getPassword(), existingUser.getPassword());
+    // userService.checkPassword(existingUser.getPassword(), user.getPassword());
+    if (!isPasswordCorrect) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
+    }
+    // Map<String, Object> responseBody = new HashMap<>();
+    // responseBody.put("user", existingUser);
+    // return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+
+    return ResponseEntity.ok(Map.of("user", existingUser));
+
   }
 }
