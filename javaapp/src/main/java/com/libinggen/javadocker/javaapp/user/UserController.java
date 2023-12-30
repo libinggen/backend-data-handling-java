@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,14 @@ public class UserController {
   private UserService userService;
 
   @GetMapping
-  public List<User> getAllUsers() {
-    return userRepository.findAll();
+  public ResponseEntity<?> getAllUsers() {
+    List<User> users = userRepository.findAll();
+
+    List<UserDTO> userDTOs =
+        users.stream().map(user -> new UserDTO(user.getUuid(), user.getUserName(), user.getEmail()))
+            .collect(Collectors.toList());
+
+    return ResponseEntity.ok(Map.of("data", userDTOs));
   }
 
   @GetMapping("/{uuid}")
