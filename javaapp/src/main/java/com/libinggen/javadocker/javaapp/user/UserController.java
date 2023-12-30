@@ -1,8 +1,8 @@
 package com.libinggen.javadocker.javaapp.user;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +62,13 @@ public class UserController {
 
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody User user) {
-    User existingUser = userRepository.findById(user.getId()).get();
+    Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
+
+    if (!userOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    User existingUser = userOptional.get();
 
     if (existingUser == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -74,7 +80,9 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
     }
 
-    return ResponseEntity.ok(Map.of("user", existingUser));
+    UserDTO userDTO =
+        new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
 
+    return ResponseEntity.ok(Map.of("user", userDTO));
   }
 }
