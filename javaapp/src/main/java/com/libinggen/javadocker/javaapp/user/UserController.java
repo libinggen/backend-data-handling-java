@@ -70,13 +70,9 @@ public class UserController {
 
     boolean isPasswordCorrect =
         userService.checkPassword(user.getPassword(), existingUser.getPassword());
-    // userService.checkPassword(existingUser.getPassword(), user.getPassword());
     if (!isPasswordCorrect) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
     }
-    // Map<String, Object> responseBody = new HashMap<>();
-    // responseBody.put("user", existingUser);
-    // return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 
     return ResponseEntity.ok(Map.of("user", existingUser));
 
