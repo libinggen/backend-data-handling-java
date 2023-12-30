@@ -30,5 +30,13 @@ docker exec -it java_app /bin/bash
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/postgres-java
 
+psql -U postgres -d postgres-java
+
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'users';
+
+ALTER TABLE users
+ALTER COLUMN uuid TYPE uuid USING (uuid::uuid);
 
 ```
