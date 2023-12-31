@@ -41,4 +41,8 @@ ALTER COLUMN uuid TYPE uuid USING (uuid::uuid);
 
 ALTER TABLE users DROP COLUMN user_name;
 
+ALTER TABLE users
+ADD CONSTRAINT unique_email UNIQUE (email);
+
+
 ```
