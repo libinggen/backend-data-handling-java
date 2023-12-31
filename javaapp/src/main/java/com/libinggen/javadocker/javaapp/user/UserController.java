@@ -37,7 +37,7 @@ public class UserController {
     return ResponseEntity.ok(Map.of("data", userDTOs));
   }
 
-  @GetMapping("/{uuid}")
+  @GetMapping("/user/{uuid}")
   public ResponseEntity<?> getUserByUuid(@PathVariable UUID uuid) {
     Optional<User> userOptional = userRepository.findByUuid(uuid);
 
@@ -52,7 +52,7 @@ public class UserController {
     return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
-  @PostMapping
+  @PostMapping("/create-user")
   public ResponseEntity<?> createUser(@RequestBody User user) {
     String hashedPassword = userService.hashPassword(user.getPassword());
     user.setPassword(hashedPassword);
@@ -63,7 +63,7 @@ public class UserController {
     return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
-  @PutMapping("/{uuid}")
+  @PutMapping("/update-user/{uuid}")
   public ResponseEntity<?> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
     Optional<User> userOptional = userRepository.findByUuid(uuid);
 
@@ -82,7 +82,7 @@ public class UserController {
     return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
-  @DeleteMapping("/{uuid}")
+  @DeleteMapping("/delete-user/{uuid}")
   public ResponseEntity<?> deleteUser(@PathVariable UUID uuid) {
     try {
       userRepository.findByUuid(uuid).get();
