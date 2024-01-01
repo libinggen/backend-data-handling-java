@@ -92,8 +92,9 @@ public class UserController {
       existingUser.setEmail(user.getEmail());
       String hashedPassword = userService.hashPassword(user.getPassword());
       existingUser.setPassword(hashedPassword);
+      User storedUser = userRepository.save(existingUser);
       UserDTO userDTO =
-          new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
+          new UserDTO(storedUser.getUuid(), storedUser.getUserName(), storedUser.getEmail());
 
       return ResponseEntity.ok(Map.of("data", userDTO));
     } catch (Exception e) {
