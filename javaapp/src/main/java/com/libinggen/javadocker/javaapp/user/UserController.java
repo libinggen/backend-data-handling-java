@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import com.libinggen.javadocker.javaapp.validator.PasswordValidator;
 
 @RestController
 @RequestMapping("/api/users")
@@ -54,32 +55,50 @@ public class UserController {
 
   @PostMapping("/create-user")
   public ResponseEntity<?> createUser(@RequestBody User user) {
-    String hashedPassword = userService.hashPassword(user.getPassword());
-    user.setPassword(hashedPassword);
-    User createUser = userRepository.save(user);
-    UserDTO userDTO =
-        new UserDTO(createUser.getUuid(), createUser.getUserName(), createUser.getEmail());
+    try {
+      PasswordValidator.validatePasswordComplexity(user.getPassword());
 
-    return ResponseEntity.ok(Map.of("data", userDTO));
+      String hashedPassword = userService.hashPassword(user.getPassword());
+      user.setPassword(hashedPassword);
+      User createUser = userRepository.save(user);
+      UserDTO userDTO =
+          new UserDTO(createUser.getUuid(), createUser.getUserName(), createUser.getEmail());
+
+      return ResponseEntity.ok(Map.of("data", userDTO));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   @PutMapping("/update-user/{uuid}")
   public ResponseEntity<?> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
-    Optional<User> userOptional = userRepository.findByUuid(uuid);
+    try {
+      Optional<User> userOptional = userRepository.findByUuid(uuid);
 
-    if (!userOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      if (!userOptional.isPresent()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      }
+
+      PasswordValidator.validatePasswordComplexity(user.getPassword());
+
+      User existingUser = userOptional.get();
+      boolean isPasswordCorrect =
+          userService.checkPassword(user.getPassword(), existingUser.getPassword());
+      if (!isPasswordCorrect) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
+      }
+
+      existingUser.setUserName(user.getUserName());
+      existingUser.setEmail(user.getEmail());
+      String hashedPassword = userService.hashPassword(user.getPassword());
+      existingUser.setPassword(hashedPassword);
+      UserDTO userDTO =
+          new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
+
+      return ResponseEntity.ok(Map.of("data", userDTO));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
-
-    User existingUser = userOptional.get();
-    existingUser.setUserName(user.getUserName());
-    existingUser.setEmail(user.getEmail());
-    String hashedPassword = userService.hashPassword(user.getPassword());
-    existingUser.setPassword(hashedPassword);
-    UserDTO userDTO =
-        new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
-
-    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 
   @DeleteMapping("/delete-user/{uuid}")
@@ -95,27 +114,33 @@ public class UserController {
 
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody User user) {
-    Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
+    try {
+      Optional<User> userOptional = userRepository.findByUserName(user.getUserName());
 
-    if (!userOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      if (!userOptional.isPresent()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      }
+
+      User existingUser = userOptional.get();
+
+      PasswordValidator.validatePasswordComplexity(user.getPassword());
+
+      if (existingUser == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      }
+
+      boolean isPasswordCorrect =
+          userService.checkPassword(user.getPassword(), existingUser.getPassword());
+      if (!isPasswordCorrect) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
+      }
+
+      UserDTO userDTO =
+          new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
+
+      return ResponseEntity.ok(Map.of("data", userDTO));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
-
-    User existingUser = userOptional.get();
-
-    if (existingUser == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-    }
-
-    boolean isPasswordCorrect =
-        userService.checkPassword(user.getPassword(), existingUser.getPassword());
-    if (!isPasswordCorrect) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
-    }
-
-    UserDTO userDTO =
-        new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
-
-    return ResponseEntity.ok(Map.of("data", userDTO));
   }
 }
