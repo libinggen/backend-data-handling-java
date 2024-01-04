@@ -58,6 +58,13 @@ public class UserController {
     try {
       PasswordValidator.validatePasswordComplexity(user.getPassword());
 
+      if (userService.isUsernameExists(user.getUserName())) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
+      }
+      if (userService.isEmailExists(user.getEmail())) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
+      }
+
       String hashedPassword = userService.hashPassword(user.getPassword());
       user.setPassword(hashedPassword);
       User createUser = userRepository.save(user);
@@ -73,25 +80,60 @@ public class UserController {
   @PutMapping("/update-user/{uuid}")
   public ResponseEntity<?> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
     try {
+      // Fetch existing user
       Optional<User> userOptional = userRepository.findByUuid(uuid);
-
       if (!userOptional.isPresent()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
       }
 
-      PasswordValidator.validatePasswordComplexity(user.getPassword());
-
       User existingUser = userOptional.get();
+
+      // Check if the current password is correct
+      PasswordValidator.validatePasswordComplexity(user.getPassword());
       boolean isPasswordCorrect =
           userService.checkPassword(user.getPassword(), existingUser.getPassword());
       if (!isPasswordCorrect) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
       }
 
-      existingUser.setUserName(user.getUserName());
-      existingUser.setEmail(user.getEmail());
-      String hashedPassword = userService.hashPassword(user.getPassword());
-      existingUser.setPassword(hashedPassword);
+      // Check change
+      if (user.getPassword2().isEmpty() || user.getPassword2().equals(user.getPassword())
+          && (user.getUserName().isEmpty() || existingUser.getUserName().equals(user.getUserName()))
+          && user.getEmail().isEmpty() || existingUser.getEmail().equals(user.getEmail())) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Must include new password or username or email.");
+      }
+
+      // Update password if provided
+      if (!user.getPassword2().isEmpty()) {
+        PasswordValidator.validatePasswordComplexity(user.getPassword2());
+        if (existingUser.getPassword().equals(user.getPassword2())) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+              .body("New password cannot be the same as the current password.");
+        }
+        String hashedNewPassword = userService.hashPassword(user.getPassword2());
+        existingUser.setPassword(hashedNewPassword);
+      }
+
+      // Check for username uniqueness
+      if (!user.getUserName().isEmpty() && !existingUser.getUserName().equals(user.getUserName())) {
+        boolean userNameExists = userService.isUsernameExists(user.getUserName());
+        if (userNameExists) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already in use");
+        }
+        existingUser.setUserName(user.getUserName());
+      }
+
+      // Check for email uniqueness
+      if (!user.getEmail().isEmpty() && !existingUser.getEmail().equals(user.getEmail())) {
+        boolean emailExists = userService.isEmailExists(user.getEmail());
+        if (emailExists) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already in use");
+        }
+        existingUser.setEmail(user.getEmail());
+      }
+
+      // Save the updated user
       User storedUser = userRepository.save(existingUser);
       UserDTO userDTO =
           new UserDTO(storedUser.getUuid(), storedUser.getUserName(), storedUser.getEmail());
