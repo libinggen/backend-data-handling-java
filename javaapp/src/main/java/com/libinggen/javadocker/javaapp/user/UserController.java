@@ -80,6 +80,13 @@ public class UserController {
   @PutMapping("/update-user/{uuid}")
   public ResponseEntity<?> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
     try {
+      String password = user.getPassword();
+      String password2 = user.getPassword2();
+      String userName = user.getUserName();
+      String email = user.getEmail();
+      if (password == null || password.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password cannot be empty");
+      }
       // Fetch existing user
       Optional<User> userOptional = userRepository.findByUuid(uuid);
       if (!userOptional.isPresent()) {
@@ -89,18 +96,14 @@ public class UserController {
       User existingUser = userOptional.get();
 
       // Check if the current password is correct
-      PasswordValidator.validatePasswordComplexity(user.getPassword());
-      boolean isPasswordCorrect =
-          userService.checkPassword(user.getPassword(), existingUser.getPassword());
+      PasswordValidator.validatePasswordComplexity(password);
+      boolean isPasswordCorrect = userService.checkPassword(password, existingUser.getPassword());
       if (!isPasswordCorrect) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
       }
 
       // Check change
-      String password2 = user.getPassword2();
-      String userName = user.getUserName();
-      String email = user.getEmail();
-      if ((password2 != null && (password2.isEmpty() || password2.equals(user.getPassword())))
+      if ((password2 != null && (password2.isEmpty() || password2.equals(password)))
           && (userName != null
               && (userName.isEmpty() || existingUser.getUserName().equals(userName)))
           && (email != null && email.isEmpty() || existingUser.getEmail().equals(email))) {
@@ -111,7 +114,7 @@ public class UserController {
       // Update password if provided
       if (password2 != null && !password2.isEmpty()) {
         PasswordValidator.validatePasswordComplexity(password2);
-        if (existingUser.getPassword().equals(password2)) {
+        if (password.equals(password2)) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST)
               .body("New password cannot be the same as the current password.");
         }
