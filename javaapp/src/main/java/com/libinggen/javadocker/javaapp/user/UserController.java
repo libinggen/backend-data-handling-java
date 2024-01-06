@@ -103,10 +103,12 @@ public class UserController {
       }
 
       // Check change
-      if ((password2 != null && (password2.isEmpty() || password2.equals(password)))
-          && (userName != null
-              && (userName.isEmpty() || existingUser.getUserName().equals(userName)))
-          && (email != null && email.isEmpty() || existingUser.getEmail().equals(email))) {
+      if ((password2 == null || password2.isEmpty()) && (userName == null || userName.isEmpty())
+          && (email == null || email.isEmpty())
+          || (password2 != null && (password2.isEmpty() || password2.equals(password)))
+              && (userName != null
+                  && (userName.isEmpty() || existingUser.getUserName().equals(userName)))
+              && (email != null && email.isEmpty() || existingUser.getEmail().equals(email))) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Must include new password or username or email.");
       }
