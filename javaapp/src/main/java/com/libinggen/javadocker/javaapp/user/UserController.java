@@ -97,40 +97,44 @@ public class UserController {
       }
 
       // Check change
-      if (user.getPassword2().isEmpty() || user.getPassword2().equals(user.getPassword())
-          && (user.getUserName().isEmpty() || existingUser.getUserName().equals(user.getUserName()))
-          && user.getEmail().isEmpty() || existingUser.getEmail().equals(user.getEmail())) {
+      String password2 = user.getPassword2();
+      String userName = user.getUserName();
+      String email = user.getEmail();
+      if ((password2 != null && (password2.isEmpty() || password2.equals(user.getPassword())))
+          && (userName != null
+              && (userName.isEmpty() || existingUser.getUserName().equals(userName)))
+          && (email != null && email.isEmpty() || existingUser.getEmail().equals(email))) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Must include new password or username or email.");
       }
 
       // Update password if provided
-      if (!user.getPassword2().isEmpty()) {
-        PasswordValidator.validatePasswordComplexity(user.getPassword2());
-        if (existingUser.getPassword().equals(user.getPassword2())) {
+      if (password2 != null && !password2.isEmpty()) {
+        PasswordValidator.validatePasswordComplexity(password2);
+        if (existingUser.getPassword().equals(password2)) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST)
               .body("New password cannot be the same as the current password.");
         }
-        String hashedNewPassword = userService.hashPassword(user.getPassword2());
+        String hashedNewPassword = userService.hashPassword(password2);
         existingUser.setPassword(hashedNewPassword);
       }
 
       // Check for username uniqueness
-      if (!user.getUserName().isEmpty() && !existingUser.getUserName().equals(user.getUserName())) {
-        boolean userNameExists = userService.isUsernameExists(user.getUserName());
+      if (userName != null && !userName.isEmpty() && !existingUser.getUserName().equals(userName)) {
+        boolean userNameExists = userService.isUsernameExists(userName);
         if (userNameExists) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already in use");
         }
-        existingUser.setUserName(user.getUserName());
+        existingUser.setUserName(userName);
       }
 
       // Check for email uniqueness
-      if (!user.getEmail().isEmpty() && !existingUser.getEmail().equals(user.getEmail())) {
-        boolean emailExists = userService.isEmailExists(user.getEmail());
+      if (email != null && !email.isEmpty() && !existingUser.getEmail().equals(email)) {
+        boolean emailExists = userService.isEmailExists(email);
         if (emailExists) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already in use");
         }
-        existingUser.setEmail(user.getEmail());
+        existingUser.setEmail(email);
       }
 
       // Save the updated user
