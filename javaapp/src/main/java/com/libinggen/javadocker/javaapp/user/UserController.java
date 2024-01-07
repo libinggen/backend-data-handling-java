@@ -125,7 +125,9 @@ public class UserController {
       }
 
       // Check for username uniqueness
-      if (userName != null && !userName.isEmpty() && !existingUser.getUserName().equals(userName)) {
+      if (userName != null && !userName.isEmpty()
+          && ((email == null || email.isEmpty()) && existingUser.getUserName().equals(userName)
+              || !existingUser.getUserName().equals(userName))) {
         boolean userNameExists = userService.isUsernameExists(userName);
         if (userNameExists) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already in use");
@@ -134,7 +136,10 @@ public class UserController {
       }
 
       // Check for email uniqueness
-      if (email != null && !email.isEmpty() && !existingUser.getEmail().equals(email)) {
+      if (email != null && !email.isEmpty()
+          && ((userName == null || userName.isEmpty())
+              && existingUser.getUserName().equals(userName)
+              || !existingUser.getEmail().equals(email))) {
         boolean emailExists = userService.isEmailExists(email);
         if (emailExists) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already in use");
