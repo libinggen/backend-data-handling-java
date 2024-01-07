@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import com.libinggen.javadocker.javaapp.utility.JwtUtil;
 import com.libinggen.javadocker.javaapp.validator.PasswordValidator;
 
 @RestController
@@ -192,10 +193,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The password is incorrect");
       }
 
+
+
       UserDTO userDTO =
           new UserDTO(existingUser.getUuid(), existingUser.getUserName(), existingUser.getEmail());
 
-      return ResponseEntity.ok(Map.of("data", userDTO));
+      String token = JwtUtil.generateToken(user.getUserName());
+      return ResponseEntity.ok(Map.of("token", token, "data", userDTO));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }

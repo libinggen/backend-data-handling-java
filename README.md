@@ -22,6 +22,7 @@ WHERE pg_stat_activity.datname = 'postgres-java' AND pid <> pg_backend_pid();
 DROP DATABASE "postgres-java";
 CREATE DATABASE "postgres-java";
 
+mvn clean install
 mvn clean package -DskipTests
 docker compose up --build
 docker compose up java_app
