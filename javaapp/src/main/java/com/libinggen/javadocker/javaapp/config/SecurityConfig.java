@@ -8,6 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.libinggen.javadocker.javaapp.filter.JwtRequestFilter;
+import com.libinggen.javadocker.javaapp.listener.CustomAccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -16,13 +17,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/users/create-user", "/api/users/login")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        authz -> authz.requestMatchers("/api/users/create-user", "/api/users/login")
+                                .permitAll().anyRequest().authenticated())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(
+                exception -> exception.accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return http.build();
     }
@@ -31,6 +34,4 @@ public class SecurityConfig {
     public JwtRequestFilter jwtRequestFilter() {
         return new JwtRequestFilter();
     }
-
-    // Define other beans like AuthenticationManager, PasswordEncoder etc. if needed
 }
