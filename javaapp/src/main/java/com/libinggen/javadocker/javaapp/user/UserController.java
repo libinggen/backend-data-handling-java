@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +22,13 @@ import com.libinggen.javadocker.javaapp.validator.PasswordValidator;
 @RequestMapping("/api/users")
 public class UserController {
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserService userService;
+  private final UserRepository userRepository;
+  private final UserService userService;
+
+  public UserController(UserRepository userRepository, UserService userService) {
+    this.userRepository = userRepository;
+    this.userService = userService;
+  }
 
   @GetMapping
   public ResponseEntity<?> getAllUsers() {

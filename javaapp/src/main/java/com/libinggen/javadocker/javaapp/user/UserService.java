@@ -1,18 +1,16 @@
 package com.libinggen.javadocker.javaapp.user;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public UserService() {
-        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
     }
 
     public String hashPassword(String plainPassword) {

@@ -17,7 +17,7 @@ public class JwtUtil {
     public static String generateToken(String username) {
         return JWT.create().withSubject(username).withIssuedAt(new Date(System.currentTimeMillis()))
                 // .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // 10 min
-                .withExpiresAt(new Date(System.currentTimeMillis() + 600 * 60 * 1000)) // 600 min
+                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000)) // 30day
                 .sign(Algorithm.HMAC256(SECRET_KEY));
     }
 
