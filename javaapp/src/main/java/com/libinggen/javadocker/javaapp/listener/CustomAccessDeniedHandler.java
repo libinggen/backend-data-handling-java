@@ -13,7 +13,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     private static final Logger logger = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AccessDeniedException accessDeniedException) throws IOException {
         logger.error("Authorization failure: " + accessDeniedException.getMessage());
         // Respond with an error status, e.g., 403 Forbidden
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");

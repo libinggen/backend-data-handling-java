@@ -14,24 +14,24 @@ import com.libinggen.javadocker.javaapp.listener.CustomAccessDeniedHandler;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(
-                        authz -> authz.requestMatchers("/api/users/create-user", "/api/users/login")
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(authz -> authz
+                                .requestMatchers("/api/users/create-user", "/api/users/login")
                                 .permitAll().anyRequest().authenticated())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtRequestFilter(),
+                                                UsernamePasswordAuthenticationFilter.class);
 
-        http.exceptionHandling(
-                exception -> exception.accessDeniedHandler(new CustomAccessDeniedHandler()));
+                http.exceptionHandling(exception -> exception
+                                .accessDeniedHandler(new CustomAccessDeniedHandler()));
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public JwtRequestFilter jwtRequestFilter() {
-        return new JwtRequestFilter();
-    }
+        @Bean
+        public JwtRequestFilter jwtRequestFilter() {
+                return new JwtRequestFilter();
+        }
 }
