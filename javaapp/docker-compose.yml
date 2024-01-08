@@ -1,29 +1,29 @@
-version: "3.10"
+version: '3.9'
 
 services:
-  javaapp:
-    container_name: javaapp
+  java_app:
+    container_name: java_app
+    image: francescoxx/java_app:1.0.0
     build: .
     ports:
-      - "8000:8000"
+      - 8080:8080
     environment:
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres-java
-      - PG_PORT=5432
-      - PG_HOST=java_db
+      - DATABASE_URL=jdbc:postgresql://java_db:5432/postgres-java
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
     depends_on:
       - java_db
 
+  #old service (postgres)
   java_db:
     container_name: java_db
-    image: postgres:12
-    environment:
-      - POSTGRES_DB=postgres-java
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    image: postgres:14
     ports:
-      - "5432:5432"
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres-java
     volumes:
       - pgdata:/var/lib/postgresql/data
 
