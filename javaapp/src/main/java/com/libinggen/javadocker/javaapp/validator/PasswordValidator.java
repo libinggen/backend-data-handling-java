@@ -13,37 +13,40 @@ public class PasswordValidator {
             Pattern.compile("[!@#$%^&*(),.?\":{}|<>]");
     private static final String[] COMMON_WORDS = {"password", "123456", "qwerty", "admin"};
 
-    public static void validatePasswordComplexity(String password) throws Exception {
+    public static void validatePasswordComplexity(String password) throws IllegalArgumentException {
         // Maximum length check
         if (password.length() > MAX_LENGTH) {
-            throw new Exception("Password should be 14 characters or less.");
+            throw new IllegalArgumentException("Password should be 14 characters or less.");
         }
 
         // Minimum length check
         if (password.length() < MIN_LENGTH) {
-            throw new Exception("Password must be at least 8 characters long.");
+            throw new IllegalArgumentException("Password must be at least 8 characters long.");
         }
 
         // Uppercase and lowercase letters check
         if (!LOWERCASE_PATTERN.matcher(password).find()
                 || !UPPERCASE_PATTERN.matcher(password).find()) {
-            throw new Exception("Password must include both uppercase and lowercase letters.");
+            throw new IllegalArgumentException(
+                    "Password must include both uppercase and lowercase letters.");
         }
 
         // Numeric character check
         if (!NUMERIC_PATTERN.matcher(password).find()) {
-            throw new Exception("Password must include at least one numeric character.");
+            throw new IllegalArgumentException(
+                    "Password must include at least one numeric character.");
         }
 
         // Special character check
         if (!SPECIAL_CHARACTER_PATTERN.matcher(password).find()) {
-            throw new Exception("Password must include at least one special character.");
+            throw new IllegalArgumentException(
+                    "Password must include at least one special character.");
         }
 
         // Common words check
         for (String word : COMMON_WORDS) {
             if (password.toLowerCase().contains(word)) {
-                throw new Exception(
+                throw new IllegalArgumentException(
                         "Password should not contain common words like '" + word + "'.");
             }
         }

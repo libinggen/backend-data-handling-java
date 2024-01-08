@@ -28,6 +28,7 @@ public class JwtUtil {
             return jwt.getSubject();
         } catch (JWTVerificationException exception) {
             // Invalid signature/claims
+
             // Log the exception with its message
             logger.error("Token validation error: {}", exception.getMessage());
             // Optional: log more details or the stack trace
