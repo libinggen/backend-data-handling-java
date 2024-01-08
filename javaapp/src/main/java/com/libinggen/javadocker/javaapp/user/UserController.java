@@ -72,7 +72,8 @@ public class UserController {
       UserDTO userDTO =
           new UserDTO(createUser.getUuid(), createUser.getUserName(), createUser.getEmail());
 
-      return ResponseEntity.ok(Map.of("data", userDTO));
+      String token = JwtUtil.generateToken(user.getUserName());
+      return ResponseEntity.ok(Map.of("token", token, "data", userDTO));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
